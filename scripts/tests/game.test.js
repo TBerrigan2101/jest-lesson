@@ -2,7 +2,9 @@
  * @jest-environment jsdom
  */
 
-const { game, newGame, showScore, addTurn, lightsOn, showTurns } = require("../game");
+jest.spyOn(window, "alert").mockImplementation(() => {});
+
+const { game, newGame, showScore, addTurn, lightsOn, showTurns, playerTurn } = require("../game");
 
 beforeAll(() => {
     let fs = require("fs");
@@ -39,6 +41,16 @@ describe("game object contains correct keys", () => {
     test("turnNumber key exist", () => {
         expect("turnNumber" in game).toBe(true);
     });
+    test("lastButton key exists", () => {
+        expect("lastButton" in game).toBe(true);
+    });
+    test("turnInProgress key exists", () => {
+        expect("turnInProgress" in game).toBe(true);
+    });
+    test("turnInProgress key value is false", () => {
+        expect("turnInProgress" in game).toBe(true);
+    });
+    
 });
 
 describe("newGame works correctly", () => {
@@ -95,4 +107,24 @@ describe("gameplay works correctly", () => {
         showTurns();
         expect(game.turnNumber).toBe(0); 
     });
+    test("should increment the score if the turn is correct", () => {
+        game.playerMoves.push(game.currentGame[0]);
+        playerTurn();
+        expect(game.score).toBe(1); 
+    }); 
+    test("should call an alert if the move is wrong", () => {
+        game.playerMoves.push("wrong");
+        playerTurn();
+        expect(window.alert).toBeCalledWith("Wrong Move!"); 
+    });  
+    test("should toggle turnInProgress to be true", () => {
+        showTurns();
+        expect(game.turnInProgress).toBe(true);
+    }); 
+    test("clicking during the computer sequence should fail", () => {
+        showTurns();
+        game.lastButton = "";
+        document.getElementById("button2").click();
+        expect(game.lastButton).toEqual("");
+    });          
 });
